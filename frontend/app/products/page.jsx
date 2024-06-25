@@ -1,36 +1,55 @@
+"use client";
+
+import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-
-const products = [
-  {
-    "ProductID": "A002",
-    "ProductName": "Klee Ear Phone",
-    "ProductDescription": "These ear phone feature a Klee theme design. Buy them if you're interested!",
-    "ProductPrice": "RM 450.00",
-    "Stock": 6,
-    "imageURL": "/products/earphone.jpg"
-  },
-  {
-    "ProductID": "L001",
-    "ProductName": "ASUS ROG Strix G15 Laptop",
-    "ProductDescription": "This is a Republic of Gaming Laptop. You can be able to run your programme smoothly with lesser bugs.",
-    "ProductPrice": "RM 10500.00",
-    "Stock": 3,
-    "imageURL": "/products/ASUSROGStrixG15.jpg"
-  },
-  {
-    "ProductID": "L002",
-    "ProductName": "Dell Alienware Laptop",
-    "ProductDescription": "This is an Dell Alienware Laptop. You can be able to run your programme smoothly with lesser bugs with cheaper price.",
-    "ProductPrice": "RM 8500.00",
-    "Stock": 4,
-    "imageURL": "/products/DellAlienware18.jpg"
-  },
-];
+import { useCart } from '../../contexts/CartContext';
+import Link from 'next/link'
 
 export default function EcommercePage() {
+  const { cart } = useCart();
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [addedToCart, setAddedToCart] = useState({});
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cart.reduce((sum, item) => {
+    const price = parseFloat(item.ProductPrice.split("RM ")[1]);
+    return sum + (price * item.quantity);
+  }, 0);
+  const { addToCart } = useCart();
+  
+  useEffect(() => {
+    fetch('http://127.0.0.1:8005/get_products/')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setProducts(data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        setError(error.message);
+        setIsLoading(false);
+      });
+  }, []);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    setAddedToCart(prev => ({ ...prev, [product.ProductID]: true }));
+    setTimeout(() => {
+      setAddedToCart(prev => ({ ...prev, [product.ProductID]: false }));
+    }, 2000); // Reset after 2 seconds
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-cover bg-center bg-fixed" style={{ backgroundImage: "url('/Background.jpg')" }}>
       <Head>
@@ -42,6 +61,15 @@ export default function EcommercePage() {
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center mb-8 text-white bg-black bg-opacity-50 p-4 rounded">Our Products</h1>
+
+        <div className="bg-black bg-opacity-80 p-4 rounded-lg shadow-lg mb-8 text-white">
+          <h2 className="text-2xl font-bold mb-2">Cart Summary</h2>
+          <p className="text-lg">Items in cart: {cartItemCount}</p>
+          <p className="text-lg font-semibold">Total: RM {cartTotal.toFixed(2)}</p>
+          <Link href="/cart" className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+            View Cart
+          </Link>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
@@ -59,8 +87,15 @@ export default function EcommercePage() {
               <p className="text-gray-300 mb-2">{product.ProductDescription}</p>
               <p className="text-lg font-bold mb-2">{product.ProductPrice}</p>
               <p className="text-sm mb-4">In Stock: {product.Stock}</p>
-              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-full hover:bg-blue-700 transition-colors">
-                Add to Cart
+              <button 
+                onClick={() => handleAddToCart(product)}
+                className={`w-full py-2 px-4 rounded-full transition-colors ${
+                  addedToCart[product.ProductID]
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
+                {addedToCart[product.ProductID] ? 'Added to Cart!' : 'Add to Cart'}
               </button>
             </div>
           ))}
