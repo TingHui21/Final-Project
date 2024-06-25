@@ -20,7 +20,7 @@ export default function ContactPage() {
           
           <div className="text-lg space-y-6 text-gray-200">
             <p>
-              We'd love to hear from you! Whether you have a question about our products, need technical support, or just want to say hello, don't hesitate to reach out.
+              We&apos;d love to hear from you! Whether you have a question about our products, need technical support, or just want to say hello, don&apos;t hesitate to reach out.
             </p>
             
             <div>

@@ -23,7 +23,7 @@ export default function EcommercePage() {
   const { addToCart } = useCart();
   
   useEffect(() => {
-    fetch('http://127.0.0.1:8005/get_products/')
+    fetch('http://0.0.0.0:8005/get_products/')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
