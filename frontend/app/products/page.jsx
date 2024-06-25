@@ -7,6 +7,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useCart } from '../../contexts/CartContext';
 import Link from 'next/link'
+import { FaShoppingCart } from 'react-icons/fa';
 
 export default function EcommercePage() {
   const { cart } = useCart();
@@ -62,7 +63,8 @@ export default function EcommercePage() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center mb-8 text-white bg-black bg-opacity-50 p-4 rounded">Our Products</h1>
 
-        <div className="bg-black bg-opacity-80 p-4 rounded-lg shadow-lg mb-8 text-white">
+        <div className="bg-black bg-opacity-80 p-4 rounded-lg shadow-lg mb-8 text-white flex justify-between items-center">
+        <div>
           <h2 className="text-2xl font-bold mb-2">Cart Summary</h2>
           <p className="text-lg">Items in cart: {cartItemCount}</p>
           <p className="text-lg font-semibold">Total: RM {cartTotal.toFixed(2)}</p>
@@ -70,6 +72,10 @@ export default function EcommercePage() {
             View Cart
           </Link>
         </div>
+        <Link href="/checkout" className="text-4xl text-white hover:text-blue-300 transition-colors">
+          <FaShoppingCart />
+        </Link>
+      </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (

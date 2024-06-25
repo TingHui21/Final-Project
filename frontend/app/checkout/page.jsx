@@ -1,91 +1,147 @@
-"use client"
+"use client";
 
-import { useCart } from '../../contexts/CartContext';
 import { useState } from 'react';
+import Head from 'next/head';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { useCart } from '../../contexts/CartContext';
 
-export default function Checkout() {
-  const { cart, clearCart } = useCart();
+export default function CheckoutPage() {
+  const { cart } = useCart();
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     address: '',
+    phoneNumber: '',
+    creditCardNumber: '',
+    cvv: '',
+    expiryDate: '',
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the order to your backend
-    console.log('Order submitted:', { cart, customerInfo: formData });
-    clearCart();
-    // Redirect to a thank you page or show a success message
+    // Here you would typically send this data to your backend
+    console.log('Form submitted:', formData);
+    // You might want to clear the cart and redirect to a confirmation page here
   };
 
-  const total = cart.reduce((sum, item) => sum + parseFloat(item.ProductPrice) * item.quantity, 0);
+  const cartTotal = cart.reduce((sum, item) => {
+    const price = parseFloat(item.ProductPrice.split("RM ")[1]);
+    return sum + (price * item.quantity);
+  }, 0);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Checkout</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Your Order</h2>
+    <div className="min-h-screen flex flex-col bg-cover bg-center bg-fixed" style={{ backgroundImage: "url('/Background.jpg')" }}>
+      <Head>
+        <title>BYTEBAZAAR Checkout</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <Header />
+
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold text-center mb-8 text-white bg-black bg-opacity-50 p-4 rounded">Checkout</h1>
+
+        <div className="bg-black bg-opacity-80 p-6 rounded-lg shadow-lg mb-8 text-white">
+          <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
           {cart.map((item) => (
-            <div key={item.ProductID} className="mb-2">
+            <div key={item.ProductID} className="flex justify-between mb-2">
               <span>{item.ProductName} x {item.quantity}</span>
-              <span className="float-right">RM {(parseFloat(item.ProductPrice) * item.quantity).toFixed(2)}</span>
+              <span>{item.ProductPrice}</span>
             </div>
           ))}
-          <div className="mt-4 text-xl font-bold">
-            Total: RM {total.toFixed(2)}
-          </div>
+          <div className="text-xl font-bold mt-4">Total: RM {cartTotal.toFixed(2)}</div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Customer Information</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="name" className="block mb-1">Name</label>
+
+        <form onSubmit={handleSubmit} className="bg-black bg-opacity-80 p-6 rounded-lg shadow-lg text-white">
+          <div className="mb-4">
+            <label htmlFor="email" className="block mb-2">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              className="w-full p-2 rounded bg-gray-700 text-white"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="address" className="block mb-2">Delivery Address</label>
+            <textarea
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+              required
+              className="w-full p-2 rounded bg-gray-700 text-white"
+            ></textarea>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="phoneNumber" className="block mb-2">Phone Number</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleInputChange}
+              required
+              className="w-full p-2 rounded bg-gray-700 text-white"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="creditCardNumber" className="block mb-2">Credit Card Number</label>
+            <input
+              type="text"
+              id="creditCardNumber"
+              name="creditCardNumber"
+              value={formData.creditCardNumber}
+              onChange={handleInputChange}
+              required
+              className="w-full p-2 rounded bg-gray-700 text-white"
+            />
+          </div>
+          <div className="flex mb-4">
+            <div className="w-1/2 mr-2">
+              <label htmlFor="cvv" className="block mb-2">CVV</label>
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={formData.name}
+                id="cvv"
+                name="cvv"
+                value={formData.cvv}
                 onChange={handleInputChange}
                 required
-                className="w-full p-2 border rounded"
+                className="w-full p-2 rounded bg-gray-700 text-white"
               />
             </div>
-            <div className="mb-4">
-              <label htmlFor="email" className="block mb-1">Email</label>
+            <div className="w-1/2 ml-2">
+              <label htmlFor="expiryDate" className="block mb-2">Expiry Date</label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                id="expiryDate"
+                name="expiryDate"
+                value={formData.expiryDate}
                 onChange={handleInputChange}
                 required
-                className="w-full p-2 border rounded"
+                placeholder="MM/YY"
+                className="w-full p-2 rounded bg-gray-700 text-white"
               />
             </div>
-            <div className="mb-4">
-              <label htmlFor="address" className="block mb-1">Address</label>
-              <textarea
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                required
-                className="w-full p-2 border rounded"
-              ></textarea>
-            </div>
-            <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-              Place Order
-            </button>
-          </form>
-        </div>
-      </div>
+          </div>
+          <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-full hover:bg-blue-700 transition-colors">
+            Place Order
+          </button>
+        </form>
+      </main>
+      
+      <Footer />
     </div>
   );
 }
