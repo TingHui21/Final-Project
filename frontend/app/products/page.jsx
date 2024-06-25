@@ -23,7 +23,7 @@ export default function EcommercePage() {
   const { addToCart } = useCart();
   
   useEffect(() => {
-    fetch('http://0.0.0.0:8005/get_products/')
+    fetch('http://54.254.12.127:8005/get_products/')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -68,7 +68,7 @@ export default function EcommercePage() {
           <h2 className="text-2xl font-bold mb-2">Cart Summary</h2>
           <p className="text-lg">Items in cart: {cartItemCount}</p>
           <p className="text-lg font-semibold">Total: RM {cartTotal.toFixed(2)}</p>
-          <Link href="/cart" className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+          <Link href="/checkout" className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
             View Cart
           </Link>
         </div>
